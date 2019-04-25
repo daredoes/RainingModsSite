@@ -1,5 +1,13 @@
 import React from "react"
 
+export function makeMessage(message, action, data) {
+    return JSON.stringify({
+        message: message,
+        action: action || 'info',
+        data: data
+    });
+}
+
 /*
  * The reason we use Global State instead of Component State is that
  * when the user clicks something on the main page and then clicks back,
@@ -38,7 +46,38 @@ export class GlobalState extends React.Component {
             updateState: this.updateState,
             hasMore: this.hasMore,
             loadMore: this.loadMore,
-            toggle: this.toggle
+            toggle: this.toggle,
+            socket: null
+        }
+    }
+    
+    componentWillMount() {
+        if (typeof WebSocket !== `undefined`) {
+            const socket = new WebSocket('ws://localhost:13254');
+
+            // Connection opened
+            socket.addEventListener('open', function (event) {
+                socket.send(makeMessage('Hello Server!'));
+            });
+
+            // Listen for messages
+            socket.addEventListener('message', function (event) {
+                console.log('Message from server ', event.data);
+                console.log(event);
+            });
+
+            this.setState({
+            socket: socket
+            })
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.state.socket) {
+            this.state.socket.close();
+            this.setState({
+            socket: null
+            })
         }
     }
 
