@@ -3,30 +3,20 @@ import React from "react"
 import GridItem from "./gridItem.js";
 
 const Grid = ({ items }) => {
-
+    let columns = [[], [], []];
+    items.forEach((item, index) => {
+        columns[index%columns.length].push(<GridItem item={item} key={index}/>)
+    });
     return (
         <>
-            <div className="grid">
-                {items.map((item, index) => <GridItem item={item} key={index}/> )}
+            <div className="columns">
+                {columns.map((children, index) => <div key={index} className="column is-4-desktop is-6-tablet">{children}</div>)}
             </div>
             <style jsx>
                 {`
                     .grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                        grid-gap: 1px;
-                    }
-
-                    @media (max-width: 800px) {
-                        .grid {
-                          grid-template-columns: 1fr 1fr 1fr;
-                        }
-                    }
-
-                    @media (max-width: 300px) {
-                        .grid {
-                          grid-template-columns: 1fr;
-                        }
+                        display: flex;
+                        flex-direction: column;
                     }
                 `}
             </style>

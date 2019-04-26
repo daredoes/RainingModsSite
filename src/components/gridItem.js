@@ -1,53 +1,61 @@
 import React from "react"
-import { Link } from "gatsby"
+import ReactMarkdown from "react-markdown"
+import { StaticQuery } from "gatsby";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const GridItem = props => {
+import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons'
+import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
-    return (
-        <React.Fragment>
-            <div className="img-container" key={props.index}>
-                <a href={props.item.url}>{props.item.name}</a>
-            </div>
-            <style jsx>
-                {`
-                    .img-container {
-                        position: relative;
-                        width:100%;
-                        background:#EEE;
-                        border-radius: 5px;
-                        border: 1px solid ghostwhite;
-                        overflow: hidden;
-                        z-index: 1;
-                    }
+class GridItem extends React.Component {
 
-                    .img-container::before {
-                        content: '';
-                        display: block;
-                        margin-top: 100%;
-                        z-index: 1;
-                    }
+    constructor(props) {
+        super(props);
+        this.state = {
+            viewReadme: false
+        }
+    }
 
-                    .img-container img {
-                        top: 0;
-                        display: block;
-                        position: absolute;
-                        width: 100%;
-                        height: auto;
-                        margin: 0 !important;
-                        border-radius: 5px;
-                        border: 1px solid gray;
-                        transition: 0.2s ease-in-out;
-                        z-index: 2;
+    toggleReadme = () => {
+        this.setState({viewReadme: !this.state.viewReadme});
+    }
 
-                        :hover {
-                            opacity: 0.4;
-                            transform: scale(1.1);
-                        }
-                    }
-                `}
-            </style>
-        </React.Fragment>
-    )
+    render() {
+        const props = this.props;
+        return (
+            <React.Fragment>
+                <div className="card" key={props.index} id={props.item.id}>
+                    <header className="card-header">
+                        <p className="card-header-title">
+                        <a href={props.item.url} target="_blank" className="card-header-title" aria-label="more options">
+                        <span className="icon">
+                            <FontAwesomeIcon icon={faGithub} />
+                            </span>
+                        {props.item.name}
+                        </a>
+                        </p>
+                        
+                        <a href={`#${props.item.id}`} onClick={this.toggleReadme} className="card-header-icon" aria-label="more options">
+                        Read {this.state.viewReadme ? 'Less' : 'More'}
+                        <span className="icon">
+                        <FontAwesomeIcon icon={this.state.viewReadme ? faAngleUp : faAngleDown} />
+                        </span>
+                        </a>
+                    </header>
+                    <div className="card-content">
+                        <div className="content">
+                            {props.item.description}
+                        </div>
+                        {this.state.viewReadme && props.item.readme && props.item.readme.text && <ReactMarkdown className="content" source={props.item.readme.text} />}
+                    </div>
+                    <footer className="card-footer">
+                        <a href={`#${props.item.id}`} className="card-footer-item">Save</a>
+                        <a href={`#${props.item.id}`} className="card-footer-item">Edit</a>
+                        <a href={`#${props.item.id}`} className="card-footer-item">X</a>
+                    </footer>
+                </div>
+            </React.Fragment>
+        )
+    }
 }
 
 export default GridItem

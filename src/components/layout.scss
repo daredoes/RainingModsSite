@@ -1,3 +1,5 @@
+@import "bulma/sass/utilities/_all.sass";
+
 html {
   font-family: Open Sans;
   -ms-text-size-adjust: 100%;
@@ -623,3 +625,5 @@ pre tt:after {
     font-size: 100%;
   }
 }
+
+@import "bulma/bulma.sass"

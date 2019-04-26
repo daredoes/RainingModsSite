@@ -16,6 +16,7 @@ exports.createPages = ({ graphql, actions}) => {
                         description,
                         url,
                         updatedAt,
+                        id,
                         readme: object(expression: "master:README.md") {
                             ... on  GitHub_Blob {
                             text
