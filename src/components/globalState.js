@@ -8,6 +8,10 @@ export function makeMessage(message, action, data) {
     });
 }
 
+export function readMessage(message) {
+    return JSON.parse(message);
+}
+
 /*
  * The reason we use Global State instead of Component State is that
  * when the user clicks something on the main page and then clicks back,
@@ -61,9 +65,8 @@ export class GlobalState extends React.Component {
             });
 
             // Listen for messages
-            socket.addEventListener('message', function (event) {
-                console.log('Message from server ', event.data);
-                console.log(event);
+            socket.addEventListener('message', function (event) {                
+                console.log(readMessage(event.data));
             });
 
             this.setState({
@@ -129,7 +132,7 @@ export class GlobalState extends React.Component {
             /* When we toggle back to pagination, reset items and cursor. */
             this.setState({
                 useInfiniteScroll: false,
-                items: pageContext.pageImages,
+                items: pageContext.pageMods,
                 cursor: pageContext.currentPage+1,
             })
         }

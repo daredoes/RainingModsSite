@@ -16,7 +16,7 @@ class View extends React.Component {
         if (!props.globalState.items || !props.globalState.useInfiniteScroll) {
             console.log("View is initializing items according to page " + props.pageContext.currentPage)
             props.globalState.updateState({
-                items: props.pageContext.pageImages,
+                items: props.pageContext.pageMods,
                 cursor: props.pageContext.currentPage+1
             })
         }
@@ -44,7 +44,7 @@ class View extends React.Component {
          * - If a user has JS disabled (we won't be able to manipulate global state).
          * - The very first render on initial pageload. 
          */
-        const currentlyVisibleItems = g.items || pageContext.pageImages
+        const currentlyVisibleItems = g.items || pageContext.pageMods
 
         return(
             <>

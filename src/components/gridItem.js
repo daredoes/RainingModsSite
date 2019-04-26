@@ -6,14 +6,7 @@ const GridItem = props => {
     return (
         <React.Fragment>
             <div className="img-container" key={props.index}>
-                <Link to="/second" state={{img: props.item.l}}>
-                {/* <a href={props.item.l} target="_blank" rel="noopener noreferrer" > */}
-                    <img
-                        src={props.item.s}
-                        alt=""
-                        title=""
-                    />
-                </Link>
+                <a href={props.item.url}>{props.item.name}</a>
             </div>
             <style jsx>
                 {`
