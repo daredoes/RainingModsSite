@@ -23,9 +23,9 @@ const Header = ({ siteTitle }) => (
               {siteTitle}
 
           </h1>
-          <input type="text" value={globalState.user && globalState.user.rootFolder || ""} onChange={(event) => {
+          { globalState.user && !globalState.user.rootFolder && <input type="text" value={globalState.user && globalState.user.rootFolder || ""} onChange={(event) => {
             globalState.updateRootFolder(event.target.value)
-          }} />
+          }} /> }
         </div>
       </header>
     )}
