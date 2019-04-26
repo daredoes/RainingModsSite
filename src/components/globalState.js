@@ -28,6 +28,8 @@ export const GlobalStateContext = React.createContext({
     hasMore: () => {},
     loadMore: () => {},
     toggle: () => {},
+    rootFolder: null,
+    updateRootFolder: () => {}
 });
 
 export class GlobalState extends React.Component {
@@ -41,6 +43,7 @@ export class GlobalState extends React.Component {
         this.loadMore = this.loadMore.bind(this)
         this.hasMore = this.hasMore.bind(this)
         this.updateState = this.updateState.bind(this)
+        this.updateRootFolder = this.updateRootFolder.bind(this)
 
         this.state = {
             items: null,
@@ -51,7 +54,15 @@ export class GlobalState extends React.Component {
             hasMore: this.hasMore,
             loadMore: this.loadMore,
             toggle: this.toggle,
-            socket: null
+            updateRootFolder: this.updateRootFolder,
+            socket: null,
+            user: {}
+        }
+    }
+
+    updateRootFolder = (root) => {
+        if (this.state.socket) {
+            this.state.socket.send(makeMessage('entered by user', 'updateRootFolder', {folder: root}))
         }
     }
     
@@ -65,12 +76,21 @@ export class GlobalState extends React.Component {
             });
 
             // Listen for messages
+            const self = this;
             socket.addEventListener('message', function (event) {                
-                console.log(readMessage(event.data));
+                let data = readMessage(event.data);
+                if (data.action == 'update' && data.data && data.data.user) {
+                    self.setState({
+                        user: JSON.parse(data.data.user)
+                    })
+                }
+                console.log(data);
+                console.log(self.state);
+
             });
 
             this.setState({
-            socket: socket
+                socket: socket
             })
         }
     }
