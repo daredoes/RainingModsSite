@@ -31,6 +31,7 @@ export const GlobalStateContext = React.createContext({
     rootFolder: null,
     updateRootFolder: () => {},
     repositoryMap: {},
+    user: null
 });
 
 export class GlobalState extends React.Component {
@@ -57,7 +58,7 @@ export class GlobalState extends React.Component {
             toggle: this.toggle,
             updateRootFolder: this.updateRootFolder,
             socket: null,
-            user: {},
+            user: null,
             repositoryMap: {}
         }
     }

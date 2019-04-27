@@ -38,7 +38,7 @@ class Header extends React.Component {
               <p className="is-5 has-text-primary subtitle">
                   {description}
               </p>
-              {globalState.user && globalState.user.rootFolder ? rootFolder ? hasRootFolderElement : missingRootFolderElement : noUserElement}
+              {globalState.user ? rootFolder ? hasRootFolderElement : missingRootFolderElement : noUserElement}
               <div className="container">
                 <p className="has-text-centered">
                   Filters
