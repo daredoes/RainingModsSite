@@ -1,38 +1,51 @@
 import PropTypes from "prop-types"
 import React from "react"
-
+import { Link } from "gatsby"
 import { GlobalStateContext, makeMessage } from "../components/globalState.js"
 
-const Header = ({ siteTitle }) => (
-  <GlobalStateContext.Consumer>
-    {globalState => (
-      <header
-      style={{
-        background: `rebeccapurple`,
-      }}
-    >
-        <div
-          style={{
-            margin: `0 auto 2px`,
-            maxWidth: 960,
-            padding: `1.45rem 1.0875rem`,
-          }}
-        >
-          <h1 style={{ margin: 0, color: `white` }}>
-
-              {siteTitle}
-
-          </h1>
-          { globalState.user && !globalState.user.rootFolder && <input type="text" value={globalState.user && globalState.user.rootFolder || ""} onChange={(event) => {
-            globalState.updateRootFolder(event.target.value)
-          }} /> }
-        </div>
-      </header>
-    )}
+class Header extends React.Component {
+  render() {
+    const { siteTitle, description } = this.props;
     
-  </GlobalStateContext.Consumer>
+    return (
+      <GlobalStateContext.Consumer>
+        {(globalState) => { 
+          const hasRootFolder = globalState.user && globalState.user.rootFolder;
+          const noUserElement = <p className="is-6 has-text-danger subtitle">Download our <a href="#">Automatic Mod Installer</a>, or turn it on to <Link to="/second">supercharge</Link> the website!</p>;
+          const hasRootFolderElement = <p className="is-6 has-text-success subtitle">Risk of Rain 2 {globalState.user.has_bepin && 'and BepInEx'} located at <a onClick={() => {
+            const newPath = prompt('Enter the path to the folder where Risk of Rain 2.exe is found.\nThis is located in your Steam folder under "steamapps/common".', globalState.user.rootFolder || "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Risk of Rain 2");
+            if (newPath) {
+              globalState.updateRootFolder(newPath)
+            }
+          }}>{globalState.user.rootFolder}</a></p>;
+          const missingRootFolderElement = <p className="is-6 has-text-danger subtitle">Risk of Rain 2 cannot be located. We checked <a onClick={() => {
+            const newPath = prompt('Enter the path to the folder where Risk of Rain 2.exe is found.\nThis is located in your Steam folder under "steamapps/common".', globalState.user.rootFolder || "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Risk of Rain 2");
+            if (newPath) {
+              globalState.updateRootFolder(newPath)
+            }
+          }}>{globalState.user.rootFolder || "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Risk of Rain 2"}</a></p>;
+          return (
+          <header style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center"
+          }}>
+              <a href="/" className="is-2 has-text-primary title">
+                  {siteTitle}
+              </a>
+              <p className="is-5 has-text-primary subtitle">
+                  {description}
+              </p>
+              {globalState.user ? noUserElement : hasRootFolder ? hasRootFolderElement : missingRootFolderElement}
+          </header>
+        )}}
+        
+      </GlobalStateContext.Consumer>
 
-)
+    )
+  }
+}
 
 Header.propTypes = {
   siteTitle: PropTypes.string,

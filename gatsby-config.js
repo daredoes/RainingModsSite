@@ -1,8 +1,8 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Infinite Scroll`,
-    description: `Need infinite scroll or pagination in your Gatsby project? This starter is for you.`,
-    author: `baobabKoodaa`,
+    title: `Raining Mods`,
+    description: `Hallelujah its raining mods! For Risk of Rain 2.`,
+    author: `DareDoes`,
   },
   plugins: [
     {

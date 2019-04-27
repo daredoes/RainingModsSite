@@ -22,7 +22,7 @@ exports.createPages = ({ graphql, actions}) => {
                             text
                             }
                         },
-                        releases(last: 5) {
+                        releases(last: 5, orderBy: {field:CREATED_AT, direction:DESC}) {
                             totalCount,
                             edges {
                                 node {
@@ -30,6 +30,7 @@ exports.createPages = ({ graphql, actions}) => {
                                     id,
                                     description,
                                     tagName,
+                                    url,
                                     releaseAssets(first: 100) {
                                         totalCount,
                                         nodes {

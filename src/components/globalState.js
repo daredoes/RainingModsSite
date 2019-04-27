@@ -72,7 +72,6 @@ export class GlobalState extends React.Component {
 
             // Connection opened
             socket.addEventListener('open', function (event) {
-                socket.send(makeMessage('Hello Server!'));
             });
 
             // Listen for messages
