@@ -37,7 +37,16 @@ class Header extends React.Component {
               <p className="is-5 has-text-primary subtitle">
                   {description}
               </p>
-              {globalState.user ? noUserElement : hasRootFolder ? hasRootFolderElement : missingRootFolderElement}
+              {globalState.user ? hasRootFolder ? hasRootFolderElement : missingRootFolderElement : noUserElement}
+              <div className="container">
+                <p className="has-text-centered">
+                  Filters
+                </p>
+                <div className="">
+                  <span className="tag">hello</span>
+                  <span className="tag">hello</span>
+                </div>
+              </div>
           </header>
         )}}
         

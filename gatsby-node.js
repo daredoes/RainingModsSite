@@ -1,6 +1,19 @@
 const path = require(`path`)
 const fs = require('fs');
 
+class DefaultDict {
+    constructor(defaultInit, defaultInitValue) {
+      return new Proxy({}, {
+        get: (target, name) => name in target ?
+          target[name] :
+          (target[name] = typeof defaultInit === 'function' ?
+            new defaultInit(defaultInitValue).valueOf() :
+            defaultInit)
+      })
+    }
+  }
+  
+
 exports.createPages = ({ graphql, actions}) => {
     const { createPage } = actions
     let repositoryNames = [];
@@ -17,6 +30,12 @@ exports.createPages = ({ graphql, actions}) => {
                         url,
                         updatedAt,
                         id,
+                        owner {
+                            id
+                            login
+                            url
+                            avatarUrl
+                          }
                         readme: object(expression: "master:README.md") {
                             ... on  GitHub_Blob {
                             text
@@ -31,6 +50,7 @@ exports.createPages = ({ graphql, actions}) => {
                                     description,
                                     tagName,
                                     url,
+                                    updatedAt,
                                     releaseAssets(first: 100) {
                                         totalCount,
                                         nodes {
@@ -82,8 +102,28 @@ exports.createPages = ({ graphql, actions}) => {
             throw result.errors
         }
 
+        let repositoryMap = new DefaultDict(DefaultDict, Object);
         let mods = repositoryNames.map(name => {
-            return result.data.github[name];
+            let mod = Object.assign({}, result.data.github[name]);
+            let mostRecentRelease = mod.releases.edges[0].node;
+            mod.downloadCount = 0;
+            mod.releases.edges.forEach((edge, index) => {
+                let downloadCount = 0;
+                let brake = false;
+                let node = edge.node;
+                repositoryMap[mod.owner.id][mod.id][node.id] = edge;
+                node.releaseAssets.nodes.some((assetNode) => {
+                        if (assetNode.name.indexOf('.dll') != -1) {
+                            downloadCount += assetNode.downloadCount;
+                            return true;
+                        }
+                });
+                mod.releases.edges[index].node.downloadCount = downloadCount;
+                mod.downloadCount += downloadCount;
+            });
+            
+            repositoryMap[mod.owner.id][mod.id]['data'] = mod;
+            return mod;
         })
 
         /* Gatsby will use this template to render the paginated pages (including the initial page for infinite scroll). */
@@ -108,7 +148,8 @@ exports.createPages = ({ graphql, actions}) => {
                      /* If you need to pass additional data, you can pass it inside this context object. */
                     pageMods: pageMods,
                     currentPage: currentPage,
-                    countPages: countPages
+                    countPages: countPages,
+                    repositoryMap: repositoryMap
                 }
             }
             /* Create normal pages (for pagination) and corresponding JSON (for infinite scroll). */

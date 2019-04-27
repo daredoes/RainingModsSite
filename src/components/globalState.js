@@ -29,7 +29,8 @@ export const GlobalStateContext = React.createContext({
     loadMore: () => {},
     toggle: () => {},
     rootFolder: null,
-    updateRootFolder: () => {}
+    updateRootFolder: () => {},
+    repositoryMap: {},
 });
 
 export class GlobalState extends React.Component {
@@ -56,7 +57,8 @@ export class GlobalState extends React.Component {
             toggle: this.toggle,
             updateRootFolder: this.updateRootFolder,
             socket: null,
-            user: {}
+            user: {},
+            repositoryMap: {}
         }
     }
 
@@ -78,7 +80,7 @@ export class GlobalState extends React.Component {
             const self = this;
             socket.addEventListener('message', function (event) {                
                 let data = readMessage(event.data);
-                if (data.action == 'update' && data.data && data.data.user) {
+                if (data.action === 'update' && data.data && data.data.user) {
                     self.setState({
                         user: JSON.parse(data.data.user)
                     })
@@ -98,7 +100,7 @@ export class GlobalState extends React.Component {
         if (this.state.socket) {
             this.state.socket.close();
             this.setState({
-            socket: null
+                socket: null
             })
         }
     }

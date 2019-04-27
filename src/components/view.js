@@ -23,7 +23,9 @@ class View extends React.Component {
     }
 
     componentDidMount() {
+        console.log(this.props.pageContext);
         this.props.globalState.updateState({
+            repositoryMap: this.props.pageContext.repositoryMap,
             isLoading: false
         })
     }
