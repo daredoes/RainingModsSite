@@ -17,7 +17,7 @@ class Header extends React.Component {
             if (newPath) {
               globalState.updateRootFolder(newPath)
             }
-          }}>{globalState.user.rootFolder}</a></p>;
+          }}>{globalState.user.rootFolder || ""}</a></p>;
           const missingRootFolderElement = <p className="is-6 has-text-danger subtitle">Risk of Rain 2 cannot be located. We checked <a onClick={() => {
             const newPath = prompt('Enter the path to the folder where Risk of Rain 2.exe is found.\nThis is located in your Steam folder under "steamapps/common".', globalState.user.rootFolder || "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Risk of Rain 2");
             if (newPath) {
