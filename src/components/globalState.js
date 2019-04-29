@@ -31,7 +31,8 @@ export const GlobalStateContext = React.createContext({
     rootFolder: null,
     updateRootFolder: () => {},
     repositoryMap: {},
-    user: null
+    user: null,
+    sendMessage: () => {},
 });
 
 export class GlobalState extends React.Component {
@@ -46,6 +47,7 @@ export class GlobalState extends React.Component {
         this.hasMore = this.hasMore.bind(this)
         this.updateState = this.updateState.bind(this)
         this.updateRootFolder = this.updateRootFolder.bind(this)
+        this.sendMessage = this.sendMessage.bind(this)
 
         this.state = {
             items: null,
@@ -59,13 +61,20 @@ export class GlobalState extends React.Component {
             updateRootFolder: this.updateRootFolder,
             socket: null,
             user: null,
-            repositoryMap: {}
+            repositoryMap: {},
+            sendMessage: this.sendMessage
         }
     }
 
     updateRootFolder = (root) => {
         if (this.state.socket) {
             this.state.socket.send(makeMessage('entered by user', 'updateRootFolder', {folder: root}))
+        }
+    }
+
+    sendMessage = (message, action, data) => {
+        if (this.state.socket && action) {
+            this.state.socket.send(makeMessage(message, action, data))
         }
     }
     

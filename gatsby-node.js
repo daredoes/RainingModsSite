@@ -58,6 +58,7 @@ exports.createPages = ({ graphql, actions}) => {
                                             downloadUrl,
                                             downloadCount,
                                             contentType,
+                                            id,
                                         }
                                     }
                                 }
