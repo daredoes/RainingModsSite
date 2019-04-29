@@ -20,13 +20,56 @@ class Layout extends React.Component {
                 title,
                 description
               }
+            },
+            github {
+              client: repository(owner:"daredoes", name:"RainingModsClient") {
+                name,
+                description,
+                url,
+                updatedAt,
+                id,
+                owner {
+                    id
+                    login
+                    url
+                    avatarUrl
+                  }
+                readme: object(expression: "master:README.md") {
+                    ... on  GitHub_Blob {
+                    text
+                    }
+                },
+                releases(last: 5, orderBy: {field:CREATED_AT, direction:DESC}) {
+                    totalCount,
+                    edges {
+                        node {
+                            name,
+                            id,
+                            description,
+                            tagName,
+                            url,
+                            updatedAt,
+                            releaseAssets(first: 100) {
+                                totalCount,
+                                nodes {
+                                    name,
+                                    downloadUrl,
+                                    downloadCount,
+                                    contentType,
+                                    id,
+                                }
+                            }
+                        }
+                    }
+                }
+              }
             }
           }
         `}
         render={data => (
               <>
                 
-                <Header siteTitle={data.site.siteMetadata.title} description={data.site.siteMetadata.description} />
+                <Header siteTitle={data.site.siteMetadata.title} description={data.site.siteMetadata.description} client={data.github.client} />
                 <div
                   style={{
                     margin: `0 auto`,
