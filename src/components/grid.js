@@ -10,7 +10,7 @@ const Grid = ({ items }) => {
     return (
         <>
             <div className="columns" style={{padding: "1.5rem"}}>
-                {columns.map((children, index) => <div key={index} className="column is-4-desktop is-6-tablet">{children}</div>)}
+                {columns.map((children, index) => <div key={index} className="column is-6-desktop is-12-tablet">{children}</div>)}
             </div>
             <style jsx>
                 {`

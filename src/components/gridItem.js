@@ -13,8 +13,8 @@ class GridItem extends React.Component {
 
     constructor(props) {
         super(props);
-        this.ownerID = props.item.owner.id;
-        this.repoID = props.item.id;
+        this.owner = props.item.owner;
+        this.repo = props.item;
         this.releasesURL = `${props.item.url}/releases`;
         this.state = {
             viewReadme: false,
@@ -27,38 +27,66 @@ class GridItem extends React.Component {
     }
 
     getDataForInstallMessage = () => {
-        let releaseAssets = {};
-        console.log(this.state.activeVersion)
-        this.state.activeVersion.releaseAssets.nodes.forEach((edge) => {
-            releaseAssets[edge.id] = {
-                'download': edge.downloadUrl
+        
+        const active = this.state.activeVersion;
+        let data = {};
+        const item = this.props.item;
+        const owner = item.owner;
+
+        data[owner.id] = {
+            'name': owner.login,
+            'url': owner.url,
+            'id': owner.id,
+            'repos': {}
+        };
+        data[owner.id]['repos'][item.id] = {
+            'id': item.id,
+            'name': item.name,
+            'url': item.url,
+            'readme': item.readme.text,
+            'description': item.description,
+            'release': {}
+        };
+        data[owner.id]['repos'][item.id]['release'] = {
+            'assets': {},
+            'name': active.name,
+            'tag_name': active.tagName,
+            'url': active.url,
+            'id': active.id
+        };
+        active.releaseAssets.nodes.forEach((edge) => {
+            data[owner.id]['repos'][item.id]['release']['assets'][edge.id] = {
+                'download': edge.downloadUrl,
+                'name': edge.name,
+                'content_type': edge.contentType,
+                'id': edge.id
             }
         });
-        let ownerID = this.ownerID;
-        let repoID = this.repoID;
-        let releaseID = this.state.activeVersion.id;
-        let data = {};
-        data[ownerID] = {};
-        data[ownerID][repoID] = {};
-        data[ownerID][repoID][releaseID] = releaseAssets;
         return data;
     }
 
     render() {
         const props = this.props;
+        const versions = props.item.releases.edges;
         return (
             <GlobalStateContext.Consumer>
                 {(globalState) => {
                     const hasRootFolder = globalState.user && globalState.user.rootFolder;
                     const isModReady = globalState.user && globalState.user.has_bepin;
+
+                    const release = globalState.user && globalState.user.mods && globalState.user.mods[this.owner.id] && globalState.user.mods[this.owner.id]['repos'][this.repo.id] ? globalState.user.mods[this.owner.id]['repos'][this.repo.id]['release'] : {};
+                    const installElement = (<a href={`#${props.item.id}`} onClick={() => {
+                        globalState.sendMessage('Install requested', 'install', this.getDataForInstallMessage())
+                    }} className="card-footer-item">Install</a>)
+                    const installedElement = (<span className="card-footer-item">Installed</span>)
                     const selectElement = (
                     <div className="select">
                         <select onChange={(event) => {this.setState(
                             {
-                                activeVersion: globalState.repositoryMap[this.ownerID][this.repoID][event.target.value].node
+                                activeVersion: globalState.repositoryMap[this.owner.id][this.repo.id][event.target.value].node
                             }
                         )}}>
-                            {props.item.releases.edges.map((edge) => <option key={edge.node.id} value={edge.node.id}>{edge.node.tagName}</option>)}
+                            {props.item.releases.edges.map((edge) => <option key={edge.node.id} value={edge.node.id}>{edge.node.tagName} {release['id'] == edge.node.id ? '(Installed)' : ''}</option>)}
                         </select>
                     </div>);
                     return (
@@ -95,9 +123,7 @@ class GridItem extends React.Component {
                     </div>
                     <footer className="card-footer">
                         <a href={`#${this.repoID}`} className="card-footer-item">Download</a>
-                        {isModReady && <a href={`#${props.item.id}`} onClick={() => {
-                            globalState.sendMessage('Install requested', 'install', this.getDataForInstallMessage())
-                        }} className="card-footer-item">Install</a>}
+                        {isModReady ? release['id'] == this.state.activeVersion.id ? installedElement : installElement : null}
                         <a href={this.releasesURL} className="card-footer-item">{props.item.releases.totalCount} Older Releases</a>
                     </footer>
                 </div>)}}

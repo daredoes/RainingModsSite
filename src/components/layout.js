@@ -56,6 +56,7 @@ class Layout extends React.Component {
                                     downloadUrl,
                                     downloadCount,
                                     contentType,
+                                    size,
                                     id,
                                 }
                             }

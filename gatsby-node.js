@@ -1,5 +1,6 @@
 const path = require(`path`)
 const fs = require('fs');
+const moment = require('moment');
 
 class DefaultDict {
     constructor(defaultInit, defaultInitValue) {
@@ -67,20 +68,6 @@ exports.createPages = ({ graphql, actions}) => {
                     }`
     }
 
-    /* 
-     * There are a few local images in this repo to show you how to fetch images with GraphQL.
-     * In order to keep the repo small, the rest of the images are fetched from Unsplash by the client's
-     * browser. Their URLs are stored in a text file. You don't want to fetch images like that in production.
-     */
-    var rawRemoteUrls = JSON.parse(fs.readFileSync('content/images/remote_image_urls.json', 'utf8'));
-    const remoteImages = rawRemoteUrls.map(url => {
-        const resizeParams = '?q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=300&h=300&fit=crop'
-        return {
-            "l": url,
-            "s": url+resizeParams
-        }
-    })
-
     let repostiories = JSON.parse(fs.readFileSync('content/images/remote_mods.json', 'utf8'));
     const repoQueries = repostiories.map(url => {
         const urlData = url.replace('https://github.com/', '').split('/', 2);
@@ -126,6 +113,30 @@ exports.createPages = ({ graphql, actions}) => {
             repositoryMap[mod.owner.id][mod.id]['data'] = mod;
             return mod;
         })
+
+        mods.sort((a, b) => {
+            const aTime = a.releases.edges[0].node.downloadCount;
+            const bTime = b.releases.edges[0].node.downloadCount;
+            if (aTime < bTime) {
+                return 1
+            } else if (aTime > bTime) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        mods.sort((a, b) => {
+            const aTime = moment(a.releases.edges[0].node.updatedAt);
+            const bTime = moment(b.releases.edges[0].node.updatedAt);
+            if (aTime < bTime) {
+                return 1
+            } else if (aTime > bTime) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
 
         /* Gatsby will use this template to render the paginated pages (including the initial page for infinite scroll). */
         const paginatedPageTemplate = path.resolve(`src/templates/paginatedPageTemplate.js`)

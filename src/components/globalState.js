@@ -1,4 +1,6 @@
 import React from "react"
+import { connect } from "net";
+import moment from "moment"
 
 export function makeMessage(message, action, data) {
     return JSON.stringify({
@@ -33,6 +35,8 @@ export const GlobalStateContext = React.createContext({
     repositoryMap: {},
     user: null,
     sendMessage: () => {},
+    connectSocket: () => {},
+    sortItemsByDate: () => {}
 });
 
 export class GlobalState extends React.Component {
@@ -48,6 +52,8 @@ export class GlobalState extends React.Component {
         this.updateState = this.updateState.bind(this)
         this.updateRootFolder = this.updateRootFolder.bind(this)
         this.sendMessage = this.sendMessage.bind(this)
+        this.connectSocket = this.connectSocket.bind(this)
+        this.sortItemsByDate = this.sortItemsByDate.bind(this)
 
         this.state = {
             items: null,
@@ -62,7 +68,9 @@ export class GlobalState extends React.Component {
             socket: null,
             user: null,
             repositoryMap: {},
-            sendMessage: this.sendMessage
+            sendMessage: this.sendMessage,
+            connectSocket: this.connectSocket,
+            sortItemsByDate: this.sortItemsByDate,
         }
     }
 
@@ -77,17 +85,26 @@ export class GlobalState extends React.Component {
             this.state.socket.send(makeMessage(message, action, data))
         }
     }
-    
-    componentWillMount() {
+
+    connectSocket = () => {
         if (typeof WebSocket !== `undefined`) {
+            if (this.state.socket) {
+                this.state.socket.close()
+            }
             const socket = new WebSocket('ws://localhost:13254');
+            const self = this;
 
             // Connection opened
             socket.addEventListener('open', function (event) {
             });
 
+            socket.addEventListener('close', function (event) {
+                self.setState({
+                    user: null
+                })
+            });
+
             // Listen for messages
-            const self = this;
             socket.addEventListener('message', function (event) {                
                 let data = readMessage(event.data);
                 if (data.action === 'update' && data.data && data.data.user) {
@@ -105,6 +122,10 @@ export class GlobalState extends React.Component {
             })
         }
     }
+    
+    componentWillMount() {
+        this.connectSocket();
+    }
 
     componentWillUnmount() {
         if (this.state.socket) {
@@ -121,6 +142,25 @@ export class GlobalState extends React.Component {
 
     updateState = (mergeableStateObject) => {
         this.setState(mergeableStateObject)
+    }
+
+    sortItemsByDate = (descending) => {
+        const direction = descending ? 1 : -1;
+        let items = this.state.items 
+        items.sort((a, b) => {
+            const aTime = moment(a.releases.edges[0].node.updatedAt);
+            const bTime = moment(b.releases.edges[0].node.updatedAt);
+            if (aTime < bTime) {
+                return 1 * direction;
+            } else if (aTime > bTime) {
+                return -1 * direction;
+            } else {
+                return 0;
+            }
+        });
+        this.setState({
+            items: items
+        })
     }
 
     loadMore = () => {
