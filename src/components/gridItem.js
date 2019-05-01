@@ -52,7 +52,8 @@ class GridItem extends React.Component {
             'name': active.name,
             'tag_name': active.tagName,
             'url': active.url,
-            'id': active.id
+            'id': active.id,
+            'updated_at': active.updatedAt
         };
         active.releaseAssets.nodes.forEach((edge) => {
             data[owner.id]['repos'][item.id]['release']['assets'][edge.id] = {
@@ -75,12 +76,12 @@ class GridItem extends React.Component {
                     const isModReady = globalState.user && globalState.user.has_bepin;
 
                     const release = globalState.user && globalState.user.mods && globalState.user.mods[this.owner.id] && globalState.user.mods[this.owner.id]['repos'][this.repo.id] ? globalState.user.mods[this.owner.id]['repos'][this.repo.id]['release'] : {};
-                    const installElement = (<a href={`#${props.item.id}`} onClick={() => {
+                    const installElement = (<a role="button" tabIndex="0" onClick={() => {
                         globalState.sendMessage('Install requested', 'install', this.getDataForInstallMessage())
-                    }} className="card-footer-item">Install</a>)
+                    }} className="card-footer-item">{ release['updated_at'] ? moment(release['updated_at']) <= moment(this.state.activeVersion.updatedAt) ? 'Upgrade' : 'Downgrade' : 'Install'}</a>)
                     const installedElement = (<span className="card-footer-item">Installed</span>)
                     const selectElement = (
-                    <div className="select">
+                    <div className="select is-pulled-right">
                         <select onChange={(event) => {this.setState(
                             {
                                 activeVersion: globalState.repositoryMap[this.owner.id][this.repo.id][event.target.value].node
@@ -90,24 +91,30 @@ class GridItem extends React.Component {
                         </select>
                     </div>);
                     return (
-                <div className="card" key={props.index} id={this.repoID}>
+                <div className="card" key={props.index} id={this.repo.id}>
                     <header className="card-header">
-                            
-                        <span className="card-header-title">
-                            <a href={props.item.url} target="_blank" className="card-header-title" aria-label="more options">
+                    <div className="columns is-multiline is-mobile card-header-title">
+                        <div className="column is-4">
+                            <a href={props.item.url} target="_blank">
                                 <span className="icon">
                                     <FontAwesomeIcon icon={faGithub} />
                                 </span>
                                 {props.item.name}
                             </a>
-                        {selectElement}
-                        </span>
-                        <a href={`#${this.repoID}`} onClick={this.toggleReadme} className="card-header-icon" aria-label="more options">
-                        Read {this.state.viewReadme ? 'Less' : 'More'}
-                            <span className="icon">
-                                <FontAwesomeIcon icon={this.state.viewReadme ? faAngleUp : faAngleDown} />
-                            </span>
-                        </a>
+                        </div>
+                        <div className="column is-5">
+                            {selectElement}
+                        </div>
+                        <div className="column is-3">
+                            <a role="button" tabIndex="0" onClick={this.toggleReadme} className="card-header-icon is-pulled-right" aria-label="more options">
+                            Read {this.state.viewReadme ? 'Less' : 'More'}
+                                <span className="icon">
+                                    <FontAwesomeIcon icon={this.state.viewReadme ? faAngleUp : faAngleDown} />
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                        
                     </header>
                     <div className="card-content">
                         <div className="content">
@@ -122,9 +129,15 @@ class GridItem extends React.Component {
                         {this.state.viewReadme && props.item.readme && props.item.readme.text && <ReactMarkdown className="content" source={props.item.readme.text} />}
                     </div>
                     <footer className="card-footer">
-                        <a href={`#${this.repoID}`} className="card-footer-item">Download</a>
+                        <a href={this.state.activeVersion.url} className="card-footer-item">Download</a>
                         {isModReady ? release['id'] == this.state.activeVersion.id ? installedElement : installElement : null}
-                        <a href={this.releasesURL} className="card-footer-item">{props.item.releases.totalCount} Older Releases</a>
+                        <a href={this.releasesURL} className="card-footer-item">All Releases</a>
+                        <a role="button" tabIndex="0" onClick={this.toggleReadme} className="card-footer-item" aria-label="more options">
+                            Read {this.state.viewReadme ? 'Less' : 'More'}
+                                <span className="icon">
+                                    <FontAwesomeIcon icon={this.state.viewReadme ? faAngleUp : faAngleDown} />
+                                </span>
+                            </a>
                     </footer>
                 </div>)}}
             </GlobalStateContext.Consumer>
