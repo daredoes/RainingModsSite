@@ -38,7 +38,7 @@ class Header extends React.Component {
                   })
                 } else {
                   if (globalState.lookForClientTimer) {
-                    clearInterval(lookForClientTimer);
+                    clearInterval(globalState.lookForClientTimer);
                   }
                   globalState.updateState({
                     lookForClient: false,
