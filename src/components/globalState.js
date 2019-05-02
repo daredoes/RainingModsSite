@@ -35,8 +35,11 @@ export const GlobalStateContext = React.createContext({
     repositoryMap: {},
     user: null,
     sendMessage: () => {},
-    connectSocket: () => {},
-    sortItemsByDate: () => {}
+    lookForClientNow: () => {},
+    sortItemsByDate: () => {},
+    lookForClient: true,
+    lookForClientTimer: null,
+    lookForClientTimeout: 5000
 });
 
 export class GlobalState extends React.Component {
@@ -52,7 +55,7 @@ export class GlobalState extends React.Component {
         this.updateState = this.updateState.bind(this)
         this.updateRootFolder = this.updateRootFolder.bind(this)
         this.sendMessage = this.sendMessage.bind(this)
-        this.connectSocket = this.connectSocket.bind(this)
+        this.lookForClient = this.lookForClient.bind(this)
         this.sortItemsByDate = this.sortItemsByDate.bind(this)
 
         this.state = {
@@ -69,8 +72,11 @@ export class GlobalState extends React.Component {
             user: null,
             repositoryMap: {},
             sendMessage: this.sendMessage,
-            connectSocket: this.connectSocket,
+            lookForClientNow: this.lookForClient,
             sortItemsByDate: this.sortItemsByDate,
+            lookForClient: true,
+            lookForClientTimer: null,
+            lookForClientTimeout: 5000
         }
     }
 
@@ -81,50 +87,64 @@ export class GlobalState extends React.Component {
     }
 
     sendMessage = (message, action, data) => {
-        if (this.state.socket && action) {
+        if (this.state.socket && this.state.socket.readyState == 1 && action) {
             this.state.socket.send(makeMessage(message, action, data))
         }
     }
 
-    connectSocket = () => {
-        if (typeof WebSocket !== `undefined`) {
-            if (this.state.socket) {
-                this.state.socket.close()
-            }
-            const socket = new WebSocket('ws://localhost:13254');
-            const self = this;
-
-            // Connection opened
-            socket.addEventListener('open', function (event) {
-            });
-
-            socket.addEventListener('close', function (event) {
-                self.setState({
-                    user: null
-                })
-            });
-
-            // Listen for messages
-            socket.addEventListener('message', function (event) {                
-                let data = readMessage(event.data);
-                if (data.action === 'update' && data.data && data.data.user) {
-                    self.setState({
-                        user: JSON.parse(data.data.user)
-                    })
-                }
-                console.log(data);
-                console.log(self.state);
-
-            });
-
+    messageReceived = (event) => {
+        let data = readMessage(event.data);
+        if (data.action === 'update' && data.data && data.data.user) {
             this.setState({
-                socket: socket
+                user: JSON.parse(data.data.user)
             })
         }
     }
+
+    socketOpened = (event) => {
+        clearInterval(this.state.lookForClientTimer);
+        this.setState({
+            lookForClientTimer: false
+        });
+    }
+
+    socketClosed = (event) => {
+        let lookForClientTimer = this.state.lookForClient ? setInterval(this.lookForClient, this.state.lookForClientTimeout) : null;
+        this.setState({
+            user: null,
+            socket: null,
+            lookForClientTimer: lookForClientTimer
+        })
+
+    }
+
+    lookForClient = () => {
+        if (typeof WebSocket !== `undefined`) {
+            if (this.state.lookForClientTimer) {
+                if (this.state.socket && this.state.socket.readyState < 2) {
+                    clearInterval(this.state.lookForClientTimer);
+                    this.setState({
+                        lookForClientTimer: false
+                    });
+                } else {
+                    const socket = new WebSocket('ws://localhost:13254');
+                    socket.addEventListener('open', this.socketOpened);
+                    socket.addEventListener('close', this.socketClosed);
+                    socket.addEventListener('error', (event) => {console.log(event)});
+                    socket.addEventListener('message', this.messageReceived);
+                    this.setState({
+                        socket: socket
+                    })
+                }
+            }
+        }
+    }
+
     
     componentWillMount() {
-        this.connectSocket();
+        this.setState({
+            lookForClientTimer: setInterval(this.lookForClient, this.state.lookForClientTimeout)
+        });
     }
 
     componentWillUnmount() {
@@ -137,7 +157,7 @@ export class GlobalState extends React.Component {
     }
 
     componentDidUpdate() {
-        console.log("Showing " + this.state.items.length + " images.")
+        console.log("Showing " + this.state.items.length + " mods.")
     }
 
     updateState = (mergeableStateObject) => {
