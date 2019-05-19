@@ -626,4 +626,8 @@ pre tt:after {
   }
 }
 
+.column > .mod:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
 @import "bulma/bulma.sass"

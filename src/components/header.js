@@ -2,6 +2,7 @@ import PropTypes from "prop-types"
 import React from "react"
 import { Link } from "gatsby"
 import { GlobalStateContext, makeMessage } from "../components/globalState.js"
+import Filters  from "./filters"
 
 class Header extends React.Component {
   constructor(props) {
@@ -82,15 +83,7 @@ class Header extends React.Component {
                   {description}
               </p>
               {globalState.user ? rootFolder ? hasRootFolderElement : missingRootFolderElement : noUserElement}
-              <div className="container">
-                <p className="has-text-centered">
-                  Filters
-                </p>
-                <div className="">
-                  <span className="tag">hello</span>
-                  <span className="tag">hello</span>
-                </div>
-              </div>
+              <Filters globalState={globalState} />
           </header>
         )}}
         

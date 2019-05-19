@@ -22,6 +22,18 @@ class GridItem extends React.Component {
         }
     }
 
+    componentDidUpdate = () => {
+        let props = this.props;
+        if (props.item.owner.id !== this.owner.id) {
+            this.owner = props.item.owner;
+            this.repo = props.item;
+            this.releasesURL = `${props.item.url}/releases`;
+            this.setState({
+                activeVersion: props.item.releases.edges.length ? props.item.releases.edges[0].node : null
+            })
+        }
+    }
+
     toggleReadme = () => {
         this.setState({viewReadme: !this.state.viewReadme});
     }
@@ -91,7 +103,7 @@ class GridItem extends React.Component {
                         </select>
                     </div>);
                     return (
-                <div className="card" key={props.index} id={this.repo.id}>
+                <div className="card mod" key={props.index} id={this.repo.id}>
                     <header className="card-header">
                     <div className="columns is-multiline is-mobile card-header-title">
                         <div className="column is-4">

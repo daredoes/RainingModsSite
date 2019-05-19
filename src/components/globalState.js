@@ -37,6 +37,7 @@ export const GlobalStateContext = React.createContext({
     sendMessage: () => {},
     lookForClientNow: () => {},
     sortItemsByDate: () => {},
+    sortItemsByFunc: () => {},
     lookForClient: true,
     lookForClientTimer: null,
     lookForClientTimeout: 5000
@@ -57,6 +58,7 @@ export class GlobalState extends React.Component {
         this.sendMessage = this.sendMessage.bind(this)
         this.lookForClient = this.lookForClient.bind(this)
         this.sortItemsByDate = this.sortItemsByDate.bind(this)
+        this.sortItemsByFunc = this.sortItemsByFunc.bind(this)
 
         this.state = {
             items: null,
@@ -74,6 +76,7 @@ export class GlobalState extends React.Component {
             sendMessage: this.sendMessage,
             lookForClientNow: this.lookForClient,
             sortItemsByDate: this.sortItemsByDate,
+            sortItemsByFunc: this.sortItemsByFunc,
             lookForClient: true,
             lookForClientTimer: null,
             lookForClientTimeout: 5000
@@ -178,6 +181,14 @@ export class GlobalState extends React.Component {
                 return 0;
             }
         });
+        this.setState({
+            items: items
+        })
+    }
+
+    sortItemsByFunc = (func) => {
+        let items = this.state.items;
+        items.sort(func);
         this.setState({
             items: items
         })
