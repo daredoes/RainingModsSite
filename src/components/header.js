@@ -3,6 +3,7 @@ import React from "react"
 import { Link } from "gatsby"
 import { GlobalStateContext, makeMessage } from "../components/globalState.js"
 import Filters  from "./filters"
+import InstallbyId from "./installById"
 
 class Header extends React.Component {
   constructor(props) {
@@ -84,6 +85,7 @@ class Header extends React.Component {
               </p>
               {globalState.user ? rootFolder ? hasRootFolderElement : missingRootFolderElement : noUserElement}
               <Filters globalState={globalState} />
+        { hasRootFolder && <InstallbyId globalState={globalState} /> }
           </header>
         )}}
         

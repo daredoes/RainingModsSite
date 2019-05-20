@@ -4,10 +4,11 @@ import { StaticQuery } from "gatsby";
 import moment from "moment";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons'
+import { faAngleDown, faAngleUp, faCopy } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
 import { GlobalStateContext, makeMessage } from "../components/globalState.js"
+import copyToClipboard from "../../scripts/copyToClipboard"
 
 class GridItem extends React.Component {
 
@@ -16,6 +17,8 @@ class GridItem extends React.Component {
         this.owner = props.item.owner;
         this.repo = props.item;
         this.releasesURL = `${props.item.url}/releases`;
+        this.uninstallData = {};
+            this.uninstallData[this.owner.id] = this.repo.id;
         this.state = {
             viewReadme: false,
             activeVersion: props.item.releases.edges.length ? props.item.releases.edges[0].node : null
@@ -31,6 +34,8 @@ class GridItem extends React.Component {
             this.setState({
                 activeVersion: props.item.releases.edges.length ? props.item.releases.edges[0].node : null
             })
+            this.uninstallData = {};
+            this.uninstallData[this.owner.id] = this.repo.id;
         }
     }
 
@@ -91,7 +96,9 @@ class GridItem extends React.Component {
                     const installElement = (<a role="button" tabIndex="0" onClick={() => {
                         globalState.sendMessage('Install requested', 'install', this.getDataForInstallMessage())
                     }} className="card-footer-item">{ release['updated_at'] ? moment(release['updated_at']) <= moment(this.state.activeVersion.updatedAt) ? 'Upgrade' : 'Downgrade' : 'Install'}</a>)
-                    const installedElement = (<span className="card-footer-item">Installed</span>)
+                    const installedElement = (<a role="button" tabIndex="0" onClick={() => {
+                        globalState.sendMessage('Uninstall requested', 'uninstall', {data: this.uninstallData})
+                    }} className="card-footer-item">Uninstall</a>)
                     const selectElement = (
                     <div className="select is-pulled-right">
                         <select onChange={(event) => {this.setState(
@@ -114,15 +121,24 @@ class GridItem extends React.Component {
                                 {props.item.name}
                             </a>
                         </div>
-                        <div className="column is-5">
+                        <div className="column is-4">
                             {selectElement}
                         </div>
                         <div className="column is-3">
                             <a role="button" tabIndex="0" onClick={this.toggleReadme} className="card-header-icon is-pulled-right" aria-label="more options">
-                            Read {this.state.viewReadme ? 'Less' : 'More'}
+                            {this.state.viewReadme ? 'Hide' : 'Show'} ReadMe
                                 <span className="icon">
                                     <FontAwesomeIcon icon={this.state.viewReadme ? faAngleUp : faAngleDown} />
                                 </span>
+                            </a>
+                        </div>
+                        <div className="column is-1">
+                            <a role="button" tabIndex="0" onClick={() => {
+                                const joiningCharacter = '-'
+                                copyToClipboard(`${this.owner.id}${joiningCharacter}${this.repo.id}${joiningCharacter}${this.state.activeVersion.id}`);
+                                alert("Copied to clipboard")
+                            }} className="button is-primary" aria-label="Copy ID to Clipboard" title="Copy ID to Clipboard">
+                                <FontAwesomeIcon icon={faCopy} />
                             </a>
                         </div>
                     </div>
@@ -145,7 +161,7 @@ class GridItem extends React.Component {
                         {isModReady ? release['id'] == this.state.activeVersion.id ? installedElement : installElement : null}
                         <a href={this.releasesURL} className="card-footer-item">All Releases</a>
                         <a role="button" tabIndex="0" onClick={this.toggleReadme} className="card-footer-item" aria-label="more options">
-                            Read {this.state.viewReadme ? 'Less' : 'More'}
+                            {this.state.viewReadme ? 'Hide' : 'Show'} ReadMe
                                 <span className="icon">
                                     <FontAwesomeIcon icon={this.state.viewReadme ? faAngleUp : faAngleDown} />
                                 </span>

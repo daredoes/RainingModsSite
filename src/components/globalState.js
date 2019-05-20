@@ -101,6 +101,8 @@ export class GlobalState extends React.Component {
             this.setState({
                 user: JSON.parse(data.data.user)
             })
+            console.log(this.state.user)
+            console.log(this.state.repositoryMap)
         }
     }
 
