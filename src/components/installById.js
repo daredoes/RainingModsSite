@@ -161,7 +161,7 @@ class InstallbyId extends React.Component {
     render() {
         
         return (
-            <div className="container">
+            <div className="container column is-12 has-text-centered ">
                 <p className="has-text-centered">
                     Install By ID
                 </p>

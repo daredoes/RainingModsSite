@@ -78,11 +78,11 @@ class Filters extends React.Component {
     render() {
         
         return (
-            <div className="container">
+            <div className="container column is-12 has-text-centered ">
                 <p className="has-text-centered">
                     Filters
                 </p>
-                <div className="">
+                <div className="columns is-mobile is-multiline container">
                     {this.filterElements}
                 </div>
             </div>
