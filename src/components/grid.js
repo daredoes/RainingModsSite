@@ -1,32 +1,24 @@
 import React from "react"
+import ReactDOM from 'react-dom'
 
 import GridItem from "./gridItem.js";
 
-const Grid = ({ items }) => {
-    let columns = [[], []];
-    items.forEach((item, index) => {
-        columns[index%columns.length].push(<GridItem item={item} key={index}/>)
-    });
-    return (
-        <>
-            <div className="columns is-multiline" style={{padding: "1.5rem"}}>
-                {columns.map((children, index) => <div key={index} className="column is-6-desktop is-12-tablet">{children}</div>)}
-            </div>
-            <style jsx>
-                {`
-                    .grid {
-                        display: flex;
-                        flex-direction: column;
-                    }
-                `}
-            </style>
-        </>
-    )
-    
+import { MDBRow, MDBContainer, MDBCol } from 'mdbreact';
+
+
+
+class Grid extends React.Component {
+
+    render() {
+        let {items } = this.props;
+        return (
+            <MDBContainer fluid className=''>
+                <MDBRow className="pt-3">
+                    {items.map((children, index) => <MDBCol key={index} md={12} lg={6} xl={4} className="px-3 py-2"><GridItem item={children} /></MDBCol>)}
+                </MDBRow>
+            </MDBContainer>
+        )
+    }
 }
-
-
-
-
 
 export default Grid;

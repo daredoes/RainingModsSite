@@ -3,8 +3,7 @@ import PropTypes from "prop-types"
 import { StaticQuery, graphql } from "gatsby"
 
 import Header from "./header"
-import 'typeface-open-sans/index.css'
-import "./layout.scss"
+
 import ribbon from "../../static/forkme_right_orange_ff7600.png"
 
 import { ToastContainer } from 'mdbreact';

@@ -8,7 +8,7 @@ import moment from "moment"
 
 import { MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem } from 'mdbreact';
 
-class ModManager extends React.Component {
+class VersionManager extends React.Component {
     render() {
         let rootFolder = this.props.globalState.user ? this.props.globalState.user.rootFolder : "";
         let children = rootFolder ? [
@@ -36,9 +36,9 @@ class ModManager extends React.Component {
     }
 };
 
-ModManager.propTypes = {
-    globalState: PropTypes.object.isRequired,
-    release: PropTypes.object.isRequired,
+VersionManager.propTypes = {
+    onChange: PropTypes.func.isRequired,
+    children: PropTypes.array.isRequired,
 }
 
-export default ModManager;
+export default VersionManager;

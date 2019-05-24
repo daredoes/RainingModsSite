@@ -76,9 +76,11 @@ class Header extends React.Component {
           }}>{rootFolder || "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Risk of Rain 2"}</a></p>;
           return (
             <MDBContainer fluid className="sticky-top">
-              <MDBNavbar  expand="md">
+              <MDBNavbar color="unique-color"  expand="md">
                 <MDBNavbarBrand>
-                  <strong>{siteTitle}</strong>
+                  <a href="#" className="text-light">
+                    <strong>{siteTitle}</strong>
+                  </a>
                 </MDBNavbarBrand>
                 <MDBNavbarToggler onClick={this.toggleCollapse} />
                 <MDBCollapse navbar id="navbarCollapse" isOpen={this.state.isOpen}>

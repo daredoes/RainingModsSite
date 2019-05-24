@@ -80,9 +80,9 @@ class Filters extends React.Component {
     render() {
         
         return (
-            <MDBDropdown>
-                <MDBDropdownToggle nav caret>
-                    <div className="d-none d-md-inline">Filters</div>
+            <MDBDropdown >
+                <MDBDropdownToggle nav caret className="text-light">
+                    <div className="d-none d-md-inline ">Filters</div>
                 </MDBDropdownToggle>
                 <MDBDropdownMenu className="dropdown-default">
                     {this.filterElements}

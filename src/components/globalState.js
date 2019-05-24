@@ -42,7 +42,8 @@ export const GlobalStateContext = React.createContext({
     lookForClient: true,
     lookForClientTimer: null,
     lookForClientTimeout: 5000,
-    lookForClientToast: null
+    lookForClientToast: null,
+    closeSocket: () => {},
 });
 
 export class GlobalState extends React.Component {
@@ -61,6 +62,7 @@ export class GlobalState extends React.Component {
         this.lookForClient = this.lookForClient.bind(this)
         this.sortItemsByDate = this.sortItemsByDate.bind(this)
         this.sortItemsByFunc = this.sortItemsByFunc.bind(this)
+        this.closeSocket = this.closeSocket.bind(this)
 
         this.state = {
             items: null,
@@ -77,6 +79,9 @@ export class GlobalState extends React.Component {
             repositoryMap: {},
             sendMessage: this.sendMessage,
             lookForClientNow: () => {
+                this.setState({
+                    lookForClient: true
+                })
                 this.socketClosed();
                 this.lookForClient(true);
             },
@@ -86,6 +91,7 @@ export class GlobalState extends React.Component {
             lookForClientTimer: null,
             lookForClientTimeout: 5000,
             lookForClientToast: null,
+            closeSocket: this.closeSocket
         }
     }
 
@@ -136,8 +142,19 @@ export class GlobalState extends React.Component {
             socket: null,
             lookForClientTimer: lookForClientTimer
         })
-        this.lookingForClientToast()
+        if (lookForClientTimer) {
+            this.lookingForClientToast()
+        }
 
+    }
+
+    closeSocket = () => {
+        if (this.state.socket) {
+            this.setState({
+                lookForClient: false,
+            })
+            this.state.socket.close();
+        }
     }
 
     clientToast = (options) => {
@@ -161,7 +178,9 @@ export class GlobalState extends React.Component {
                 this.setState({
                     lookForClientTimer: false
                 });
-                this.notLookingForClientToast();
+                if (!this.state.user) {
+                    this.notLookingForClientToast();
+                }
             },
             closeOnClick: true,
             closeButton: true,

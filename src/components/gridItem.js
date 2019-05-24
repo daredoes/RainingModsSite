@@ -1,4 +1,5 @@
 import React from "react"
+import ReactDOM from 'react-dom'
 import ReactMarkdown from "react-markdown"
 import { StaticQuery } from "gatsby";
 import moment from "moment";
@@ -10,7 +11,9 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { GlobalStateContext, makeMessage } from "../components/globalState.js"
 import copyToClipboard from "../../scripts/copyToClipboard"
 
-import { toast } from 'mdbreact'
+import { toast, MDBCard, MDBCardBody, MDBCardFooter, MDBCardHeader, MDBCardText, MDBCardTitle, MDBBtn, MDBRow, MDBCol } from 'mdbreact'
+
+import { VersionManager } from './versionManager'
 
 class GridItem extends React.Component {
 
@@ -40,6 +43,8 @@ class GridItem extends React.Component {
             this.uninstallData[this.owner.id] = this.repo.id;
         }
     }
+
+   
 
     toggleReadme = () => {
         this.setState({viewReadme: !this.state.viewReadme});
@@ -102,15 +107,41 @@ class GridItem extends React.Component {
                         globalState.sendMessage('Uninstall requested', 'uninstall', {data: this.uninstallData})
                     }} className="card-footer-item">Uninstall</a>)
                     const selectElement = (
-                    <div className="select is-pulled-right">
-                        <select onChange={(event) => {this.setState(
+                        <select className="browser-default custom-select" onChange={(event) => {this.setState(
                             {
                                 activeVersion: globalState.repositoryMap[this.owner.id][this.repo.id][event.target.value].node
                             }
                         )}}>
                             {props.item.releases.edges.map((edge) => <option key={edge.node.id} value={edge.node.id}>{edge.node.tagName} {release['id'] == edge.node.id ? '(Installed)' : ''}</option>)}
-                        </select>
-                    </div>);
+                        </select>);
+                    return (
+                        <MDBCard>
+                            <MDBCardHeader className="form-header rounded primary-color">
+                                <MDBRow className="d-flex flex-column">
+                                    <h4 className="my-1 text-center font-weight-bolder">{props.item.name}</h4>
+                                    <h5 className="text-center font-weight-normal">{props.item.owner.login}</h5>
+                                </MDBRow>
+                                <MDBRow className="d-flex flex-wrap justify-content-center">
+                                    <MDBBtn href={this.state.activeVersion.url} target="_blank" color="secondary" size="sm">Download</MDBBtn>
+                                </MDBRow>
+                            </MDBCardHeader>
+                            <MDBCardBody>
+                            {props.item.description}
+                            {this.state.viewReadme && props.item.readme && props.item.readme.text && <ReactMarkdown className="content" source={props.item.readme.text} />}
+                            </MDBCardBody>
+                            <MDBCardFooter>
+                                <MDBRow>
+                                    <MDBCol size={6}>
+                                        <MDBBtn outline color="primary">ReadMe</MDBBtn>
+                                    </MDBCol>
+                                    <MDBCol size={6} className="d-flex justify-content-center align-items-center">
+                                        {selectElement}
+                                    </MDBCol>
+                                </MDBRow>
+
+                            </MDBCardFooter>
+                        </MDBCard>
+                    );
                     return (
                 <div className="card mod" key={props.index} id={this.repo.id}>
                     <header className="card-header">
