@@ -8,6 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons'
 
+import { MDBDropdownItem } from 'mdbreact';
+
 class Filter extends React.Component {
 
     constructor(props) {
@@ -31,11 +33,9 @@ class Filter extends React.Component {
         let {tag, hasDirection } = this.props;
         let { direction } = this.state;
         return (
-            <div className="column is-narrow">
-                <a title={hasDirection != 0 ? `Switch to ${direction == -1 ? 'Ascending' : 'Descending'}` : `Turn ${direction == 1 ? 'Off' : 'On'}`} role="button" tabIndex="0" className={`tag ${hasDirection == 0 ? `is-${direction == 1 ? 'danger' : 'success'}` : ''}`} onClick={this.onClick}>
+            <MDBDropdownItem  title={hasDirection != 0 ? `Switch to ${direction == -1 ? 'Ascending' : 'Descending'}` : `Turn ${direction == 1 ? 'Off' : 'On'}`} role="button" tabIndex="0" onClick={this.onClick}>
                 {hasDirection != 0 && <FontAwesomeIcon icon={direction == 1 ? faAngleUp : faAngleDown} />}&nbsp;{tag}
-                </a>
-            </div>
+            </MDBDropdownItem>
         )
     }
 };

@@ -6,6 +6,8 @@ import Filter from "./filter"
 import PropTypes from "prop-types"
 import moment from "moment"
 
+import { MDBDropdown, MDBDropdownToggle, MDBDropdownMenu } from 'mdbreact';
+
 class Filters extends React.Component {
 
     constructor(props) {
@@ -78,14 +80,14 @@ class Filters extends React.Component {
     render() {
         
         return (
-            <div className="container column is-12 has-text-centered ">
-                <p className="has-text-centered">
-                    Filters
-                </p>
-                <div className="columns is-mobile is-multiline container">
+            <MDBDropdown>
+                <MDBDropdownToggle nav caret>
+                    <div className="d-none d-md-inline">Filters</div>
+                </MDBDropdownToggle>
+                <MDBDropdownMenu className="dropdown-default">
                     {this.filterElements}
-                </div>
-            </div>
+                </MDBDropdownMenu>
+            </MDBDropdown>
         )
     }
 };

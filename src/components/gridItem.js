@@ -10,6 +10,8 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { GlobalStateContext, makeMessage } from "../components/globalState.js"
 import copyToClipboard from "../../scripts/copyToClipboard"
 
+import { toast } from 'mdbreact'
+
 class GridItem extends React.Component {
 
     constructor(props) {
@@ -135,8 +137,13 @@ class GridItem extends React.Component {
                         <div className="column is-1">
                             <a role="button" tabIndex="0" onClick={() => {
                                 const joiningCharacter = '-'
-                                copyToClipboard(`${this.owner.id}${joiningCharacter}${this.repo.id}${joiningCharacter}${this.state.activeVersion.id}`);
-                                alert("Copied to clipboard")
+                                const id = `${this.owner.id}${joiningCharacter}${this.repo.id}${joiningCharacter}${this.state.activeVersion.id}`;
+                                copyToClipboard(id);
+                                toast.info(<span>Copied <em>{id}</em> to clipboard</span>, {
+                                    autoClose: 3000,
+                                    hideProgressBar: false,
+                                    pauseOnHover: false
+                                })
                             }} className="button is-primary" aria-label="Copy ID to Clipboard" title="Copy ID to Clipboard">
                                 <FontAwesomeIcon icon={faCopy} />
                             </a>

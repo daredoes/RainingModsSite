@@ -4,30 +4,34 @@ import { Link } from "gatsby"
 import { GlobalStateContext, makeMessage } from "../components/globalState.js"
 import Filters  from "./filters"
 import InstallbyId from "./installById"
+import ModManager from './manager'
+
+import { toast, MDBNavbar, MDBNavbarBrand, MDBNavbarNav, MDBNavItem, MDBPopover, MDBPopoverHeader, MDBNavbarToggler, MDBCollapse, MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem, MDBContainer } from 'mdbreact';
 
 class Header extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      sortDateDirectionDescending: true
+      sortDateDirectionDescending: true,
+      isOpen: false,
     }
+  }
+
+  toggleCollapse = () => {
+    this.setState({ isOpen: !this.state.isOpen})
   }
 
   render() {
     const { siteTitle, description, client } = this.props;
-    const latestClientRelease = client.releases.edges.length ? client.releases.edges[0].node.releaseAssets : null;
-    let latestClientReleaseURL = null;
-    if (latestClientRelease) {
-      console.log(latestClientRelease);
-      latestClientReleaseURL = latestClientRelease.nodes.length ? latestClientRelease.nodes[0].downloadUrl : null;
-    }
+    const latestClientRelease = client.releases.edges.length && client.releases.edges[0].node.releaseAssets.nodes.length ? client.releases.edges[0].node.releaseAssets.nodes[0] : null;
+    let latestClientReleaseURL = latestClientRelease.downloadUrl;
     
     return (
       <GlobalStateContext.Consumer>
         {(globalState) => { 
           const hasRootFolder = globalState.user && globalState.user.rootFolder;
           const rootFolder = globalState.user ? globalState.user.rootFolder : "";
-          const noUserElement = <p className="column is-12 has-text-centered  is-6 has-text-danger subtitle">Download our <a target={`${latestClientReleaseURL ? '_blank' : ''}`} href={`${latestClientReleaseURL || '#'}`}>Automatic Mod Installer<sup>{parseInt(latestClientRelease.nodes[0].size / 1000000)}MB</sup></a>, or turn it on <a role="button" tabIndex="0" onClick={() => {
+          const noUserElement = <p className="column is-12 has-text-centered  is-6 has-text-danger subtitle">Download our <a target={`${latestClientReleaseURL ? '_blank' : ''}`} href={`${latestClientReleaseURL || '#'}`}>Automatic Mod Installer<sup>{parseInt(latestClientRelease.size / 1000000)}MB</sup></a>, or turn it on <a role="button" tabIndex="0" onClick={() => {
             if (globalState.lookForClient) {
               let seconds = prompt('Enter a value of time in seconds for RainingMods to check for the client. Enter 0 to stop refreshing.', parseInt(globalState.lookForClientTimeout / 1000).toString());
               if (seconds) {
@@ -71,17 +75,25 @@ class Header extends React.Component {
             }
           }}>{rootFolder || "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Risk of Rain 2"}</a></p>;
           return (
-          <header class="columns is-mobile is-multiline">
-              <a href="/" className="column is-12 has-text-centered is-2 has-text-primary title">
-                  {siteTitle}
-              </a>
-              <p className="column is-12 has-text-centered is-5 has-text-primary subtitle">
-                  {description}
-              </p>
-              {globalState.user ? rootFolder ? hasRootFolderElement : missingRootFolderElement : noUserElement}
-              <Filters globalState={globalState} />
-        { hasRootFolder && <InstallbyId globalState={globalState} /> }
-          </header>
+            <MDBContainer fluid className="sticky-top">
+              <MDBNavbar  expand="md">
+                <MDBNavbarBrand>
+                  <strong>{siteTitle}</strong>
+                </MDBNavbarBrand>
+                <MDBNavbarToggler onClick={this.toggleCollapse} />
+                <MDBCollapse navbar id="navbarCollapse" isOpen={this.state.isOpen}>
+                  <MDBNavbarNav left>
+                    <MDBNavItem>
+                      <Filters globalState={globalState} />
+                    </MDBNavItem>
+                    <MDBNavItem>
+                      <ModManager globalState={globalState} release={latestClientRelease} />
+                    </MDBNavItem>
+                    <InstallbyId globalState={globalState} />
+                  </MDBNavbarNav>
+                </MDBCollapse>
+              </MDBNavbar>
+            </MDBContainer>
         )}}
         
       </GlobalStateContext.Consumer>

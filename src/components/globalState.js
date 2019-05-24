@@ -1,6 +1,7 @@
 import React from "react"
 import { connect } from "net";
 import moment from "moment"
+import { toast, MDBTooltip, MDBContainer, MDBRow, MDBCol, MDBBtn } from "mdbreact";
 
 export function makeMessage(message, action, data) {
     return JSON.stringify({
@@ -40,7 +41,8 @@ export const GlobalStateContext = React.createContext({
     sortItemsByFunc: () => {},
     lookForClient: true,
     lookForClientTimer: null,
-    lookForClientTimeout: 5000
+    lookForClientTimeout: 5000,
+    lookForClientToast: null
 });
 
 export class GlobalState extends React.Component {
@@ -74,12 +76,16 @@ export class GlobalState extends React.Component {
             user: null,
             repositoryMap: {},
             sendMessage: this.sendMessage,
-            lookForClientNow: this.lookForClient,
+            lookForClientNow: () => {
+                this.socketClosed();
+                this.lookForClient(true);
+            },
             sortItemsByDate: this.sortItemsByDate,
             sortItemsByFunc: this.sortItemsByFunc,
             lookForClient: true,
             lookForClientTimer: null,
-            lookForClientTimeout: 5000
+            lookForClientTimeout: 5000,
+            lookForClientToast: null,
         }
     }
 
@@ -101,35 +107,99 @@ export class GlobalState extends React.Component {
             this.setState({
                 user: JSON.parse(data.data.user)
             })
-            console.log(this.state.user)
-            console.log(this.state.repositoryMap)
         }
     }
 
     socketOpened = (event) => {
+        
         clearInterval(this.state.lookForClientTimer);
         this.setState({
             lookForClientTimer: false
         });
+        this.clientToast({
+            type: 'success',
+            render: 'Client Found!',
+            autoClose: 3000,
+            hideProgress: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+        })
     }
 
     socketClosed = (event) => {
+        if (this.state.lookForClientTimer) {
+            clearInterval(this.state.lookForClientTimer)
+        }
         let lookForClientTimer = this.state.lookForClient ? setInterval(this.lookForClient, this.state.lookForClientTimeout) : null;
         this.setState({
             user: null,
             socket: null,
             lookForClientTimer: lookForClientTimer
         })
+        this.lookingForClientToast()
 
     }
 
-    lookForClient = () => {
+    clientToast = (options) => {
+        let optKeys = Object.keys(options);
+        options = Object.assign({}, {autoClose: false,
+            closeButton: false, closeOnClick: false}, options);
+        if (toast.isActive(this.state.lookForClientToast)) {
+            toast.update(this.state.lookForClientToast, options);
+        } else if (optKeys.indexOf('type') !== -1 && optKeys.indexOf('render') !== -1) {
+            this.setState({
+                lookForClientToast: toast[options["type"]](options['render'], options)
+            });
+        }
+    }
+
+    lookingForClientToast = () => {
+        this.clientToast({
+            type: 'info',
+            onClose: () => {
+                clearInterval(this.state.lookForClientTimer);
+                this.setState({
+                    lookForClientTimer: false
+                });
+                this.notLookingForClientToast();
+            },
+            closeOnClick: true,
+            closeButton: true,
+            render: <div onClick={() => {console.log('h')}}>Looking for client
+            <br /><em>Click to Cancel</em></div>,
+        })
+    }
+
+    lookForClientToast = () => {
+        this.clientToast({
+            type: 'info',
+            closeOnClick: true,
+            closeButton: false,
+            render: 'Click to search for Mod Manager',
+            onClose: this.socketClosed
+        })
+    }
+
+    notLookingForClientToast = () => {
+        this.clientToast({
+            type: 'error',
+            render: 'Click to resume client search',
+            onClose: this.socketClosed,
+            closeOnClick: true
+        })
+    }
+
+    lookForClient = (bypass) => {
         if (typeof WebSocket !== `undefined`) {
-            if (this.state.lookForClientTimer) {
+            if (bypass || this.state.lookForClientTimer) {
                 if (this.state.socket && this.state.socket.readyState < 2) {
                     clearInterval(this.state.lookForClientTimer);
                     this.setState({
-                        lookForClientTimer: false
+                        lookForClientTimer: null,
+                    });
+                    this.clientToast({
+                        type: 'error',
+                        render: 'Search for client is canceled',
                     });
                 } else {
                     const socket = new WebSocket('ws://localhost:13254');
@@ -147,9 +217,6 @@ export class GlobalState extends React.Component {
 
     
     componentWillMount() {
-        this.setState({
-            lookForClientTimer: setInterval(this.lookForClient, this.state.lookForClientTimeout)
-        });
     }
 
     componentWillUnmount() {

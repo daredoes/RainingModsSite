@@ -6,6 +6,8 @@ import Filter from "./filter"
 import PropTypes from "prop-types"
 import moment from "moment"
 
+import { MDBModal, MDBModalBody, MDBModalFooter, MDBModalHeader, MDBNavItem, MDBDropdownToggle } from 'mdbreact';
+
 const minimumRows = 2;
 
 class InstallbyId extends React.Component {
@@ -16,6 +18,7 @@ class InstallbyId extends React.Component {
             rows: minimumRows,
             modCount: 0,
             mods: {},
+            isOpen: false
         }
         this.setFilters();
         this.textRef = React.createRef();
@@ -158,18 +161,28 @@ class InstallbyId extends React.Component {
 
     }
 
+    toggleModal = () => {
+        this.setState({
+            isOpen: !this.state.isOpen
+        })
+    }
+
     render() {
-        
+        let rootFolder = this.props.globalState.user ? this.props.globalState.user.rootFolder : "";
         return (
-            <div className="container column is-12 has-text-centered ">
-                <p className="has-text-centered">
-                    Install By ID
-                </p>
-                <div className="">
+            rootFolder ?
+            <div>
+                <MDBNavItem>
+                    <a role="button" tabIndex="0" className="nav-link" onClick={this.toggleModal}>
+                        Bulk Installer
+                    </a>
+                </MDBNavItem>
+                <MDBModal centered isOpen={this.state.isOpen} toggle={this.toggleModal} size="lg" backdrop={true}>
+                    <MDBModalHeader toggle={this.toggleModal}>Install By ID</MDBModalHeader>
                     <form onSubmit={this.onSubmit}>
                         <div className="field">
                             <p className="control">
-                                <textarea className="textarea" ref={this.textRef}
+                                <textarea className="textarea form-control" ref={this.textRef}
                                 onChange={this.onInputChange} rows={this.state.rows > minimumRows ? this.state.rows : minimumRows} placeholder="Enter an ID on each line to install">
 
                                 </textarea>
@@ -183,10 +196,15 @@ class InstallbyId extends React.Component {
                                 <button className="is-large button is-primary" onClick={this.copyMyModsToTextarea}>Copy My Mods to Textarea</button>
                             </p>
                         </div>
+                        <MDBModalBody>
+
+                        </MDBModalBody>
+                        <MDBModalFooter>
+
+                        </MDBModalFooter>
                     </form>
-                    
-                </div>
-            </div>
+                </MDBModal>
+            </div> : null
         )
     }
 };

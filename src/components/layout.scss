@@ -1,3 +1,6 @@
+@import "../../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
+@import "../../node_modules/bootstrap-css-only/css/bootstrap.min.css";
+@import "../../node_modules/mdbreact/dist/css/mdb.css";
 @import "bulma/sass/utilities/_all.sass";
 
 html {
@@ -628,6 +631,10 @@ pre tt:after {
 
 .column > .mod:not(:last-child) {
   margin-bottom: 1.5rem;
+}
+
+.modal-backdrop {
+  z-index: 39;
 }
 
 @import "bulma/bulma.sass"

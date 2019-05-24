@@ -7,6 +7,8 @@ import 'typeface-open-sans/index.css'
 import "./layout.scss"
 import ribbon from "../../static/forkme_right_orange_ff7600.png"
 
+import { ToastContainer } from 'mdbreact';
+
 class Layout extends React.Component {
 
   render() {
@@ -69,7 +71,8 @@ class Layout extends React.Component {
         `}
         render={data => (
               <>
-                
+                <ToastContainer newestOnTop={true}
+          autoClose={false} />
                 <Header siteTitle={data.site.siteMetadata.title} description={data.site.siteMetadata.description} client={data.github.client} />
                 <div
                   style={{
