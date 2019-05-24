@@ -127,6 +127,7 @@ class GridItem extends React.Component {
                             </MDBCardHeader>
                             <MDBCardBody>
                             {props.item.description}
+                            
                             {this.state.viewReadme && props.item.readme && props.item.readme.text && <ReactMarkdown className="content" source={props.item.readme.text} />}
                             </MDBCardBody>
                             <MDBCardFooter>
