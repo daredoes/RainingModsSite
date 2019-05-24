@@ -11,7 +11,7 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { GlobalStateContext, makeMessage } from "../components/globalState.js"
 import copyToClipboard from "../../scripts/copyToClipboard"
 
-import { toast, MDBCard, MDBCardBody, MDBCardFooter, MDBCardHeader, MDBCardText, MDBCardTitle, MDBBtn, MDBRow, MDBCol } from 'mdbreact'
+import { toast, MDBCard, MDBCardBody, MDBCardFooter, MDBCardHeader, MDBCardText, MDBCardTitle, MDBBtn, MDBRow, MDBCol, MDBModal, MDBModalBody, MDBModalFooter, MDBModalHeader } from 'mdbreact'
 
 import { VersionManager } from './versionManager'
 
@@ -90,9 +90,21 @@ class GridItem extends React.Component {
         return data;
     }
 
+    copyVersionIDToClipboard = () => {
+        const joiningCharacter = '-'
+        const id = `${this.owner.id}${joiningCharacter}${this.repo.id}${joiningCharacter}${this.state.activeVersion.id}`;
+        copyToClipboard(id);
+        toast.info(<span>Copied <em>{id}</em> to clipboard</span>, {
+            autoClose: 3000,
+            hideProgressBar: false,
+            pauseOnHover: false
+        })
+    }
+
     render() {
         const props = this.props;
         const versions = props.item.releases.edges;
+        
         return (
             <GlobalStateContext.Consumer>
                 {(globalState) => {
@@ -100,12 +112,14 @@ class GridItem extends React.Component {
                     const isModReady = globalState.user && globalState.user.has_bepin;
 
                     const release = globalState.user && globalState.user.mods && globalState.user.mods[this.owner.id] && globalState.user.mods[this.owner.id]['repos'][this.repo.id] ? globalState.user.mods[this.owner.id]['repos'][this.repo.id]['release'] : {};
-                    const installElement = (<a role="button" tabIndex="0" onClick={() => {
+                    const isModInstalled = isModReady ? release['id'] == this.state.activeVersion.id : false;
+                    const installedMod = release['updated_at'] ? isModInstalled ? 'Uninstall' : moment(release['updated_at']) <= moment(this.state.activeVersion.updatedAt) ? 'Upgrade' : 'Downgrade' : 'Install';
+                    const installOnClick = () => {
                         globalState.sendMessage('Install requested', 'install', this.getDataForInstallMessage())
-                    }} className="card-footer-item">{ release['updated_at'] ? moment(release['updated_at']) <= moment(this.state.activeVersion.updatedAt) ? 'Upgrade' : 'Downgrade' : 'Install'}</a>)
-                    const installedElement = (<a role="button" tabIndex="0" onClick={() => {
+                    }
+                    const uninstallOnClick = () => {
                         globalState.sendMessage('Uninstall requested', 'uninstall', {data: this.uninstallData})
-                    }} className="card-footer-item">Uninstall</a>)
+                    }
                     const selectElement = (
                         <select className="browser-default custom-select" onChange={(event) => {this.setState(
                             {
@@ -116,30 +130,49 @@ class GridItem extends React.Component {
                         </select>);
                     return (
                         <MDBCard>
-                            <MDBCardHeader className="form-header rounded primary-color">
+                            <MDBCardHeader className={`form-header rounded ${installedMod !== 'Install' ? 'default' : 'unique'}-color`}>
                                 <MDBRow className="d-flex flex-column">
-                                    <h4 className="my-1 text-center font-weight-bolder">{props.item.name}</h4>
-                                    <h5 className="text-center font-weight-normal">{props.item.owner.login}</h5>
+                                <a className="text-light" href={props.item.url} target="_blank"><h4 className="my-1 text-center font-weight-bolder">{props.item.name}</h4></a>
+                                <a className="text-light" href={props.item.owner.url} target="_blank"><h5 className="text-center font-weight-normal">{props.item.owner.login}</h5></a>
                                 </MDBRow>
                                 <MDBRow className="d-flex flex-wrap justify-content-center">
-                                    <MDBBtn href={this.state.activeVersion.url} target="_blank" color="secondary" size="sm">Download</MDBBtn>
+                                    <MDBBtn href={this.state.activeVersion.url} target="_blank" color="secondary" size="md">Download</MDBBtn>
+                                    <MDBBtn onClick={this.toggleReadme} color="secondary" size="md">ReadMe</MDBBtn>
+                                    { hasRootFolder && isModReady  && <MDBBtn onClick={isModInstalled ? uninstallOnClick : installOnClick} target="_blank" color="secondary" size="md">{installedMod}</MDBBtn>}
                                 </MDBRow>
                             </MDBCardHeader>
                             <MDBCardBody>
                             {props.item.description}
+
                             
-                            {this.state.viewReadme && props.item.readme && props.item.readme.text && <ReactMarkdown className="content" source={props.item.readme.text} />}
                             </MDBCardBody>
+                            <MDBModal centered isOpen={this.state.viewReadme} toggle={this.toggleReadme} size="lg" backdrop={true}>
+                                <MDBModalHeader tag="h2" toggle={this.toggleReadme}>{props.item.name} - ReadMe</MDBModalHeader>
+                                    <MDBModalBody>
+                                        {props.item.readme && props.item.readme.text && <ReactMarkdown className="content" source={props.item.readme.text} />}
+                                    </MDBModalBody>
+                                    <MDBModalFooter>
+                                        <MDBBtn onClick={this.toggleReadme} color="secondary" size="md">Close</MDBBtn>
+                                    </MDBModalFooter>
+                            </MDBModal>
                             <MDBCardFooter>
                                 <MDBRow>
-                                    <MDBCol size={6}>
-                                        <MDBBtn outline color="primary">ReadMe</MDBBtn>
+                                    
+                                    <MDBCol size="6" className="d-flex justify-content-center align-items-center">
+                                        <MDBCardText>Total Downloads: {props.item.downloadCount}</MDBCardText>
                                     </MDBCol>
-                                    <MDBCol size={6} className="d-flex justify-content-center align-items-center">
+                                    <MDBCol className="d-flex justify-content-center align-items-center" size="6">
+                                        <MDBCardText>Published: {moment(this.state.activeVersion.updatedAt).format('LLL')}</MDBCardText>
+                                    </MDBCol>
+                                </MDBRow>
+                                <MDBRow className="mt-2">
+                                    <MDBCol size="6" className="d-flex justify-content-center align-items-center">
+                                        <MDBCardText>Version Downloads: {this.state.activeVersion.downloadCount}</MDBCardText>
+                                    </MDBCol>
+                                    <MDBCol size="6" className="d-flex justify-content-center align-items-center">
                                         {selectElement}
                                     </MDBCol>
                                 </MDBRow>
-
                             </MDBCardFooter>
                         </MDBCard>
                     );
@@ -197,7 +230,7 @@ class GridItem extends React.Component {
                     </div>
                     <footer className="card-footer">
                         <a href={this.state.activeVersion.url} className="card-footer-item">Download</a>
-                        {isModReady ? release['id'] == this.state.activeVersion.id ? installedElement : installElement : null}
+                       
                         <a href={this.releasesURL} className="card-footer-item">All Releases</a>
                         <a role="button" tabIndex="0" onClick={this.toggleReadme} className="card-footer-item" aria-label="more options">
                             {this.state.viewReadme ? 'Hide' : 'Show'} ReadMe

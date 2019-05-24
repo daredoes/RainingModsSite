@@ -14,7 +14,7 @@ class Grid extends React.Component {
         return (
             <MDBContainer fluid className=''>
                 <MDBRow className="pt-3">
-                    {items.map((children, index) => <MDBCol key={index} md={12} lg={6} xl={4} className="px-3 py-2"><GridItem item={children} /></MDBCol>)}
+                    {items.map((children, index) => <MDBCol key={index} md="12" lg="6" xl="4" className="px-3 py-2"><GridItem item={children} /></MDBCol>)}
                 </MDBRow>
             </MDBContainer>
         )

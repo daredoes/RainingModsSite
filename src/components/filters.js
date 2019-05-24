@@ -82,7 +82,7 @@ class Filters extends React.Component {
         return (
             <MDBDropdown >
                 <MDBDropdownToggle nav caret className="text-light">
-                    <div className="d-none d-md-inline ">Filters</div>
+                    <div className="d-inline ">Filters</div>
                 </MDBDropdownToggle>
                 <MDBDropdownMenu className="dropdown-default">
                     {this.filterElements}

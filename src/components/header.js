@@ -6,7 +6,7 @@ import Filters  from "./filters"
 import InstallbyId from "./installById"
 import ModManager from './manager'
 
-import { toast, MDBNavbar, MDBNavbarBrand, MDBNavbarNav, MDBNavItem, MDBPopover, MDBPopoverHeader, MDBNavbarToggler, MDBCollapse, MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem, MDBContainer } from 'mdbreact';
+import { toast, MDBNavbar, MDBNavbarBrand, MDBNavbarNav, MDBNavItem, MDBPopover, MDBPopoverHeader, MDBNavbarToggler, MDBCollapse, MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBHamburgerToggler, MDBContainer } from 'mdbreact';
 
 class Header extends React.Component {
   constructor(props) {
@@ -76,7 +76,7 @@ class Header extends React.Component {
           }}>{rootFolder || "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Risk of Rain 2"}</a></p>;
           return (
             <MDBContainer fluid className="sticky-top">
-              <MDBNavbar color="unique-color"  expand="md">
+              <MDBNavbar dark color="unique-color"  expand="md">
                 <MDBNavbarBrand>
                   <a href="#" className="text-light">
                     <strong>{siteTitle}</strong>

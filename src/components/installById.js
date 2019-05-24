@@ -173,7 +173,7 @@ class InstallbyId extends React.Component {
             rootFolder ?
             <div>
                 <MDBNavItem>
-                    <a role="button" tabIndex="0" className="nav-link" onClick={this.toggleModal}>
+                    <a role="button" tabIndex="0" className="nav-link text-light" onClick={this.toggleModal}>
                         Bulk Installer
                     </a>
                 </MDBNavItem>

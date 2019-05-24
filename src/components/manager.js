@@ -26,7 +26,7 @@ class ModManager extends React.Component {
         return (
             <MDBDropdown>
                 <MDBDropdownToggle nav caret className="text-light">
-                    <div className="d-none d-md-inline">Automatic Mod Manager</div>
+                    <div className="d-inline">Automatic Mod Manager</div>
                 </MDBDropdownToggle>
                 <MDBDropdownMenu className="dropdown-default">
                     {children}
